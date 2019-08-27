@@ -16,7 +16,7 @@ public class RedisController {
     @ResponseBody
     public Object test() {
         redisService.set("object", 111);
-        return redisService.get("object");
+        return redisService.exists("object");
     }
 
 }
