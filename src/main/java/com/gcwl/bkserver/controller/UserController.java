@@ -2,6 +2,7 @@ package com.gcwl.bkserver.controller;
 
 import com.gcwl.bkserver.entity.User;
 import com.gcwl.bkserver.service.impl.UserServiceImpl;
+import io.swagger.annotations.Api;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
+@Api
 @Controller
 public class UserController {
 
