@@ -2,6 +2,7 @@ package com.gcwl.bkserver.controller;
 
 import com.gcwl.bkserver.entity.User;
 import com.gcwl.bkserver.service.impl.UserServiceImpl;
+import com.gcwl.bkserver.util.Result;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -19,7 +20,7 @@ public class UserController {
     @Autowired
     private UserServiceImpl userServiceImpl;
 
-    @RequestMapping(value = "/login", method = RequestMethod.GET)
+    @RequestMapping(value = "/index", method = RequestMethod.GET)
     @ResponseBody
     public String defaultLogin() {
         return "首页";
@@ -54,13 +55,16 @@ public class UserController {
         }
     }
 
-//    @PostMapping("/checkLogin")
-//    @ResponseBody
-//    public Map<Object, Object> checkLogin(String userName, String password){
-//        return userServiceImpl.checkLogin(userName, password);
-//    }
+    @PostMapping("/logout")
+    @ResponseBody
+    public Object logOut(){
+        // 从SecurityUtils里边创建一个 subject
+        Subject subject = SecurityUtils.getSubject();
+        subject.logout();
+        return Result.success("登出成功");
+    }
 
-    @RequiresPermissions("user:list1")
+    @RequiresPermissions("user:list")
     @RequestMapping("/getUserByUserName")
     @ResponseBody
     public User getUserByUserName(String userName){
