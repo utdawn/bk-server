@@ -1,6 +1,7 @@
 package com.gcwl.bkserver.controller;
 
 import com.gcwl.bkserver.service.RedisService;
+import com.gcwl.bkserver.util.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,6 +18,12 @@ public class RedisController {
     public Object test() {
         redisService.set("object", 111);
         return redisService.exists("object");
+    }
+
+    @GetMapping("haha")
+    @ResponseBody
+    public Object haha() {
+        return Result.error();
     }
 
 }
