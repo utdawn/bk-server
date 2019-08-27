@@ -1,5 +1,8 @@
 package com.gcwl.bkserver.util;
 
+import lombok.Data;
+
+@Data
 public class Result<T> {
     /**
      * 错误码

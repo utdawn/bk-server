@@ -28,6 +28,7 @@ public class ShiroConfig {
         shiroFilterFactoryBean.setUnauthorizedUrl("/notRole");
         Map<String, String> filterChainDefinitionMap = new LinkedHashMap<>();
         // <!-- authc:所有url都必须认证通过才可以访问; anon:所有url都都可以匿名访问-->
+        filterChainDefinitionMap.put("/haha", "anon");
         filterChainDefinitionMap.put("/webjars/**", "anon");
         filterChainDefinitionMap.put("/login", "anon");
         filterChainDefinitionMap.put("/", "anon");
