@@ -2,11 +2,16 @@ package com.gcwl.bkserver.controller;
 
 import com.gcwl.bkserver.entity.User;
 import com.gcwl.bkserver.service.impl.UserServiceImpl;
+import io.swagger.annotations.Api;
 import com.gcwl.bkserver.util.Result;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.apache.shiro.authz.annotation.RequiresRoles;
+import org.apache.shiro.crypto.hash.SimpleHash;
 import org.apache.shiro.subject.Subject;
+import org.apache.shiro.util.ByteSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
+@Api
 @Controller
 public class UserController {
 
@@ -28,7 +34,7 @@ public class UserController {
 
     @RequestMapping(value = "/login", method = RequestMethod.POST)
     @ResponseBody
-    public String login(@RequestParam("userName") String username, @RequestParam("password") String password) {
+    public Object login(@RequestParam("userName") String username, @RequestParam("password") String password) {
         // 从SecurityUtils里边创建一个 subject
         Subject subject = SecurityUtils.getSubject();
         // 在认证提交前准备 token（令牌）
@@ -37,21 +43,21 @@ public class UserController {
         try {
             subject.login(token);
         } catch (UnknownAccountException uae) {
-            return "未知账户";
+            return Result.error("未知账户");
         } catch (IncorrectCredentialsException ice) {
-            return "密码不正确";
+            return Result.error("密码不正确");
         } catch (LockedAccountException lae) {
-            return "账户已锁定";
+            return Result.error("账户已锁定");
         } catch (ExcessiveAttemptsException eae) {
-            return "用户名或密码错误次数过多";
+            return Result.error("用户名或密码错误次数过多");
         } catch (AuthenticationException ae) {
-            return "用户名或密码不正确！";
+            return Result.error("用户名或密码不正确！");
         }
         if (subject.isAuthenticated()) {
-            return "登录成功";
+            return Result.success("登录成功");
         } else {
             token.clear();
-            return "登录失败";
+            return Result.error("登录失败");
         }
     }
 
@@ -64,11 +70,45 @@ public class UserController {
         return Result.success("登出成功");
     }
 
-    @RequiresPermissions("user:list")
+    @PostMapping("/register")
+    @ResponseBody
+    public Object register(User user){
+        if(null != userServiceImpl.getPwdByUserName(user.getUserName())){
+            return Result.error("用户名已存在");
+        }
+        //将密码进行2次MD5加密后，存入数据库
+        String md5Pwd = new SimpleHash("MD5", user.getPassword(),
+                ByteSource.Util.bytes(user.getUserName() + "salt"), 2).toHex();
+        user.setPassword(md5Pwd);
+        int rs = userServiceImpl.register(user);
+        if (rs == 0){
+            return Result.error("注册失败，请重试");
+        }
+        return Result.success("注册成功");
+    }
+
+    /**
+     * 获取用户信息，包含角色、权限
+     * logical= Logical.OR： 可以任一拥有权限
+     * logical= Logical.AND：必须同时拥有权限
+     * @param userName
+     * @return
+     */
+    @RequiresPermissions(value={"user:list","user:add"}, logical = Logical.AND)
     @RequestMapping("/getUserByUserName")
     @ResponseBody
     public User getUserByUserName(String userName){
         return userServiceImpl.getUserByUserName(userName);
     }
 
+    /**
+     * 仅获取用户信息，不包含角色、权限
+     * @return
+     */
+    @RequiresRoles(value={"r0001"})
+    @PostMapping("/userList")
+    @ResponseBody
+    public List<User> getCommonUserList(){
+        return userServiceImpl.getCommonUserList();
+    }
 }

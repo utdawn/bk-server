@@ -34,16 +34,19 @@ public class CustomRealm extends AuthorizingRealm {
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principalCollection) {
         String username = (String) SecurityUtils.getSubject().getPrincipal();
         SimpleAuthorizationInfo info = new SimpleAuthorizationInfo();
-        Set<String> permissionSet = new HashSet<String>();
+        Set<String> roleStringSet = new HashSet<>();
+        Set<String> permissionStringSet = new HashSet<String>();
         // 取出当前用户的角色
         Set<Role> roleSet = userServiceImpl.getUserByUserName(username).getRoles();
-        // 取出当前用户的权限
+        // 提取出当前用户的角色名、权限名
         for(Role role: roleSet){
-            permissionSet.addAll(role.getPermissions());
+            roleStringSet.add(role.getRoleCode());
+            permissionStringSet.addAll(role.getPermissions());
         }
-        // 将权限加入SimpleAuthorizationInfo中，
-        // 使得框架可以获取到用户所拥有的权限
-        info.setStringPermissions(permissionSet);
+        // 将角色、权限加入SimpleAuthorizationInfo中，
+        // 使得框架可以获取到用户所拥有的角色、权限
+        info.setRoles(roleStringSet);
+        info.setStringPermissions(permissionStringSet);
         return info;
     }
 

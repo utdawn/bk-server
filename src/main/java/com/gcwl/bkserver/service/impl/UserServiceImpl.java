@@ -26,6 +26,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUserByUserName(String userName) {
+        if(null == userName)
+            return null;
         User user = userMapper.getUserByUserName(userName);
         Set<Role> roleList = userMapper.getUserRoleByUserName(userName);
         for (Role role:roleList){
@@ -34,6 +36,16 @@ public class UserServiceImpl implements UserService {
         }
         user.setRoles(roleList);
         return user;
+    }
+
+    @Override
+    public int register(User user) {
+        return userMapper.register(user);
+    }
+
+    @Override
+    public List<User> getCommonUserList() {
+        return userMapper.getCommonUserList();
     }
 
 //    @Override
