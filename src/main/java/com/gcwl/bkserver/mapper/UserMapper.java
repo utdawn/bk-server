@@ -15,7 +15,7 @@ public interface UserMapper {
     public String getPwdByUserName(String userName);
 
     @Select({"select * from user"})
-    public List<User> getUserList();
+    public List<User> getCommonUserList();
 
     @Select({"select * from role"})
     public List<Role> getRoleList();
@@ -42,5 +42,7 @@ public interface UserMapper {
     @Select({"select permissionCode from role_permission where roleCode=#{roleCode}"})
     public Set<String> getRolePermissionByRoleCode(String roleCode);
 
-
+    @Insert({"insert into user (userName,password,tel,address,realName)" +
+            "values (#{userName},#{password},#{tel},#{address},#{realName})"})
+    public int register(User user);
 }
