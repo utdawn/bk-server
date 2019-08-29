@@ -32,13 +32,13 @@ public class UserController {
         return "首页";
     }
 
-    @RequestMapping(value = "/login", method = RequestMethod.POST)
+    @RequestMapping(value = "/login")
     @ResponseBody
-    public Object login(@RequestParam("userName") String username, @RequestParam("password") String password) {
+    public Result login(String userName, String password) {
         // 从SecurityUtils里边创建一个 subject
         Subject subject = SecurityUtils.getSubject();
         // 在认证提交前准备 token（令牌）
-        UsernamePasswordToken token = new UsernamePasswordToken(username, password);
+        UsernamePasswordToken token = new UsernamePasswordToken(userName, password);
         // 执行认证登陆
         try {
             subject.login(token);
@@ -63,7 +63,7 @@ public class UserController {
 
     @PostMapping("/logout")
     @ResponseBody
-    public Object logOut(){
+    public Result logout(){
         // 从SecurityUtils里边创建一个 subject
         Subject subject = SecurityUtils.getSubject();
         subject.logout();
@@ -72,7 +72,7 @@ public class UserController {
 
     @PostMapping("/register")
     @ResponseBody
-    public Object register(User user){
+    public Result register(User user){
         if(null != userServiceImpl.getPwdByUserName(user.getUserName())){
             return Result.error("用户名已存在");
         }
@@ -80,11 +80,7 @@ public class UserController {
         String md5Pwd = new SimpleHash("MD5", user.getPassword(),
                 ByteSource.Util.bytes(user.getUserName() + "salt"), 2).toHex();
         user.setPassword(md5Pwd);
-        int rs = userServiceImpl.register(user);
-        if (rs == 0){
-            return Result.error("注册失败，请重试");
-        }
-        return Result.success("注册成功");
+        return userServiceImpl.register(user);
     }
 
     /**

@@ -5,6 +5,7 @@ import com.gcwl.bkserver.entity.Role;
 import com.gcwl.bkserver.entity.User;
 import com.gcwl.bkserver.mapper.UserMapper;
 import com.gcwl.bkserver.service.UserService;
+import com.gcwl.bkserver.util.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -39,8 +40,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public int register(User user) {
-        return userMapper.register(user);
+    public Result register(User user) {
+        int rs = 0;
+        rs = userMapper.register(user);
+        if(rs == 0)
+            return Result.error("注册失败，请重试");
+        userMapper.addRole(user.getUserName(), "r0002");
+        return Result.success("注册成功");
     }
 
     @Override

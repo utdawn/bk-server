@@ -1,5 +1,7 @@
 package com.gcwl.bkserver.entity;
 
+import java.util.List;
+
 public class Goods {
     private int gid;
     private String goodsCode;
@@ -8,6 +10,7 @@ public class Goods {
     private double discount;
     private double price;
     private String description;
+    private List<String> iconUrl;
 
     public int getGid() {
         return gid;
@@ -63,5 +66,13 @@ public class Goods {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public List<String> getIconUrl() {
+        return iconUrl;
+    }
+
+    public void setIconUrl(List<String> iconUrl) {
+        this.iconUrl = iconUrl;
     }
 }

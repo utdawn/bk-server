@@ -1,6 +1,7 @@
 package com.gcwl.bkserver.service;
 
 import com.gcwl.bkserver.entity.User;
+import com.gcwl.bkserver.util.Result;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,7 +14,7 @@ public interface UserService {
 
     public User getUserByUserName(String userName);
 
-    public int register(User user);
+    public Result register(User user);
 
     public List<User> getCommonUserList();
 //    public Map<Object,Object> checkLogin(String userName, String password);
