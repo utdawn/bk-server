@@ -4,6 +4,7 @@ import com.gcwl.bkserver.entity.Goods;
 import com.gcwl.bkserver.entity.Orders;
 import com.gcwl.bkserver.service.impl.GoodsServiceImpl;
 import com.gcwl.bkserver.util.Result;
+import io.swagger.annotations.Api;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -11,8 +12,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
+@Api
 @Controller
 @RequestMapping("/goods")
 public class GoodsController {
@@ -25,7 +29,6 @@ public class GoodsController {
      * @return
      */
     @PostMapping("/getGoodsList")
-    @RequiresRoles("r0001")
     @ResponseBody
     public Result getGoodsList() {
         return Result.build("0000","成功", goodsServiceimpl.getGoodsList());
@@ -74,5 +77,11 @@ public class GoodsController {
     @ResponseBody
     public Result getOrdersByUserName(String userName) {
         return Result.build("0000","成功", goodsServiceimpl.getOrdersByUserName(userName));
+    }
+
+    @PostMapping("/doSeckill")
+    @ResponseBody
+    public Result doSeckill(String userName, String goodsCode){
+        return goodsServiceimpl.doSeckill(userName,goodsCode);
     }
 }

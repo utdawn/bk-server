@@ -45,4 +45,9 @@ public interface UserMapper {
     @Insert({"insert into user (userName,password,tel,address,realName)" +
             "values (#{userName},#{password},#{tel},#{address},#{realName})"})
     public int register(User user);
+
+    //
+    @Insert({"insert into user_role (userName,roleCode)" +
+            "values (#{userName},#{roleCOde})"})
+    public int addRole(String userName, String roleCOde);
 }
