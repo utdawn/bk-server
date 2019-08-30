@@ -54,6 +54,11 @@ public class UserServiceImpl implements UserService {
         return userMapper.getCommonUserList();
     }
 
+    @Override
+    public int deleteUser(String userName) {
+        return userMapper.deleteUser(userName);
+    }
+
 //    @Override
 //    public Map<Object, Object> checkLogin(String userName, String password) {
 //        Map<Object, Object> map = new HashMap<>();

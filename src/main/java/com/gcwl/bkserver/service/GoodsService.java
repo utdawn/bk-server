@@ -2,6 +2,7 @@ package com.gcwl.bkserver.service;
 
 import com.gcwl.bkserver.entity.Goods;
 import com.gcwl.bkserver.entity.Orders;
+import com.gcwl.bkserver.entity.Seckill;
 import com.gcwl.bkserver.util.Result;
 import org.springframework.stereotype.Service;
 
@@ -24,4 +25,11 @@ public interface GoodsService {
     public List<Orders> getOrdersByUserNameAndGoodsCode(String userName, String goodsCode);
 
     public Result doSeckill(String userName, String goodsCode);
+
+    public Result addSeckill(Seckill seckill);
+
+    public int getCounts(String goodsCode);
+
+    public Result endSecondKill(String goodsCode, int counts);
+
 }

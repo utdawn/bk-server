@@ -17,5 +17,8 @@ public interface UserService {
     public Result register(User user);
 
     public List<User> getCommonUserList();
-//    public Map<Object,Object> checkLogin(String userName, String password);
+
+    public int deleteUser(String userName);
+
+
 }

@@ -46,8 +46,10 @@ public interface UserMapper {
             "values (#{userName},#{password},#{tel},#{address},#{realName})"})
     public int register(User user);
 
-    //
     @Insert({"insert into user_role (userName,roleCode)" +
             "values (#{userName},#{roleCOde})"})
     public int addRole(String userName, String roleCOde);
+
+    @Delete({"delete from user where userName=#{userName}"})
+    public int deleteUser(String userName);
 }
