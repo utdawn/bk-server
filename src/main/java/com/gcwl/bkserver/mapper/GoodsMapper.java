@@ -18,7 +18,9 @@ public interface GoodsMapper {
     @Select({"select * from goods"})
     public List<Goods> getGoodsList();
 
-    @Select({"select * from goods where goodsCode=#{goodsCode}"})
+    @Select({"select g.*, s.startTime, s.endTime " +
+            "from goods g left join seckill s on s.goodsCode=g.goodsCode " +
+            "where g.goodsCode=#{goodsCode}"})
     public Goods getGoodsByGoodsCode(String goodsCode);
 
     @Select({"select * from goods where goodsName like CONCAT('%',#{goodsName},'%')"})
