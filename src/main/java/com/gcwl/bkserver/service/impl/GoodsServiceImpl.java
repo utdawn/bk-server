@@ -79,8 +79,8 @@ public class GoodsServiceImpl implements GoodsService {
     public synchronized Result doSeckill(String userName, String goodsCode){
         //判断库存量
         Seckill seckill  = goodsMapper.getSekillByGoodsCode(goodsCode);
-//        int counts = seckill.getCounts();
-        int counts = (Integer) redisService.get("counts");
+        int counts = seckill.getCounts();
+//        int counts = (Integer) redisService.get("counts");
         if(counts <= 0){
             return Result.error("手慢了，已被抢购空了!");
         }
@@ -103,8 +103,8 @@ public class GoodsServiceImpl implements GoodsService {
         //减库存 下订单
         counts = counts - 1;
         seckill.setCounts(counts);
-//        goodsMapper.updateSeckillByGoodsCode(seckill);
-        redisService.set("counts", counts);
+        goodsMapper.updateSeckillByGoodsCode(seckill);
+//        redisService.set("counts", counts);
         Orders orders = new Orders();
         orders.setGoodsCode(goodsCode);
         orders.setUserName(userName);
