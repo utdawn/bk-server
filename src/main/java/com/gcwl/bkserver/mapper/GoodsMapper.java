@@ -13,13 +13,14 @@ import java.util.Map;
 
 @Mapper
 public interface GoodsMapper {
+
+    /* ----- Goods ----- */
     @Select({"select * from goods"})
     public List<Goods> getGoodsList();
 
-    @Select({"select * from orders"})
-    public List<Orders> getOrdersList();
-
-    @Select({"select * from goods where goodsCode=#{goodsCode}"})
+    @Select({"select g.*, s.startTime, s.endTime " +
+            "from goods g left join seckill s on s.goodsCode=g.goodsCode " +
+            "where g.goodsCode=#{goodsCode}"})
     public Goods getGoodsByGoodsCode(String goodsCode);
 
     @Select({"select * from goods where goodsName like CONCAT('%',#{goodsName},'%')"})
@@ -29,6 +30,16 @@ public interface GoodsMapper {
             "from goods_icon_url \n" +
             "where goodsCode=#{goodsCode}"})
     public List<String> getGoodsIconUrlByGoodsCode(String goodsCode);
+
+    @Insert({"insert into goods (goodsCode,goodsName,counts,discount,price,description) " +
+            "values (#{goodsCode},#{goodsName},#{counts},#{discount},#{price},#{description})"})
+    public int addGoods(Goods goods);
+
+
+
+    /* ----- orders ----- */
+    @Select({"select * from orders"})
+    public List<Orders> getOrdersList();
 
     @Select({"select * from orders where oid=#{id}"})
     public Orders getOrdersById(int id);
@@ -41,20 +52,28 @@ public interface GoodsMapper {
             "where o.userName=#{userName} and o.goodsCode=#{goodsCode}"})
     public List<Orders> getOrdersByUserNameAndGoodsCode(String userName, String goodsCode);
 
-    @Select({"select * from seckill where goodsCode=#{goodsCode}"})
-    public Seckill getSekillByGoodsCode(String goodsCode);
-
-    @Insert({"insert into goods (goodsCode,goodsName,counts,discount,price,description) " +
-            "values (#{goodsCode},#{goodsName},#{counts},#{discount},#{price},#{description})"})
-    public int addGoods(Goods goods);
-
     @Insert({"insert into orders (userName,goodsCode,counts,payTime,pay)" +
             " values (#{userName},#{goodsCode},#{counts},#{payTime},#{pay})"})
     public int addOrders(Orders orders);
+
+
+
+    /* ----- seckill ----- */
+    @Select({"select * from seckill where goodsCode=#{goodsCode}"})
+    public Seckill getSekillByGoodsCode(String goodsCode);
+
+    @Insert({"insert into seckill (goodsCode,seckillPrice,counts,startTime,endTime)" +
+            " values (#{goodsCode},#{seckillPrice},#{counts},#{startTime},#{endTime})"})
+    public int addSeckill(Seckill seckill);
 
     @Update({"update seckill set " +
             "goodsCode=#{goodsCode},seckillPrice=#{seckillPrice},counts=#{counts}," +
             "startTime=#{startTime},endTime=#{endTime}" +
             "where goodsCode=#{goodsCode}"})
     public int updateSeckillByGoodsCode(Seckill seckill);
+
+    @Update({"update seckill " +
+            "set counts = #{counts} " +
+            "where goodsCode = #{goodsCode} and counts > 0"})
+    public int reduceSeckillByGoodsCode(String goodsCode, int counts);
 }

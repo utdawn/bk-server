@@ -73,14 +73,26 @@ public class UserController {
     @PostMapping("/register")
     @ResponseBody
     public Result register(User user){
-        if(null != userServiceImpl.getPwdByUserName(user.getUserName())){
-            return Result.error("用户名已存在");
+//        if(null != userServiceImpl.getPwdByUserName(user.getUserName())){
+//            return Result.error("用户名已存在");
+//        }
+//        //将密码进行2次MD5加密后，存入数据库
+//        String md5Pwd = new SimpleHash("MD5", user.getPassword(),
+//                ByteSource.Util.bytes(user.getUserName() + "salt"), 2).toHex();
+//        user.setPassword(md5Pwd);
+//        return userServiceImpl.register(user);
+        int count = 5000;
+        for (int i = 0; i < count; i++) {
+            User muser = new User();
+            muser.setUserName("user" + i);
+            muser.setPassword(new SimpleHash("MD5", "123",
+                    ByteSource.Util.bytes("user" + i + "salt"), 2).toHex());
+            muser.setTel("123");
+            muser.setAddress("123123");
+            muser.setRealName("user" + i);
+            userServiceImpl.register(muser);
         }
-        //将密码进行2次MD5加密后，存入数据库
-        String md5Pwd = new SimpleHash("MD5", user.getPassword(),
-                ByteSource.Util.bytes(user.getUserName() + "salt"), 2).toHex();
-        user.setPassword(md5Pwd);
-        return userServiceImpl.register(user);
+        return null;
     }
 
     /**

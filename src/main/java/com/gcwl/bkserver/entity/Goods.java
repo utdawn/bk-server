@@ -1,5 +1,6 @@
 package com.gcwl.bkserver.entity;
 
+import java.util.Date;
 import java.util.List;
 
 public class Goods {
@@ -11,6 +12,8 @@ public class Goods {
     private double price;
     private String description;
     private List<String> iconUrl;
+    private Date startTime;
+    private Date endTime;
 
     public int getGid() {
         return gid;
@@ -74,5 +77,21 @@ public class Goods {
 
     public void setIconUrl(List<String> iconUrl) {
         this.iconUrl = iconUrl;
+    }
+
+    public Date getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(Date startTime) {
+        this.startTime = startTime;
+    }
+
+    public Date getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(Date endTime) {
+        this.endTime = endTime;
     }
 }
