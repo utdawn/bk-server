@@ -122,16 +122,16 @@ public class BkServerApplicationTests {
 //    @Autowired
 //    private JedisPool jedisPool;
 
-    @Test
-    public void test(){
-//        Jedis jedis = jedisPool.getResource();
-        Jedis jedis = RedisUtil2.getJedis();
-//        if(jedis == null){
-//            System.out.println(true);
-//        }
-//        jedis.hset("0003", "counts", "123");
-        jedis.del("0003");
-//        jedis.hset("0003", "user99998", "2019/11/11 11:11:11");
-//        System.out.println(jedis.hexists("0005", "counts"));
-    }
+//    @Test
+//    public void test(){
+////        Jedis jedis = jedisPool.getResource();
+//        Jedis jedis = RedisUtil2.getJedis();
+////        if(jedis == null){
+////            System.out.println(true);
+////        }
+////        jedis.hset("0003", "counts", "123");
+//        jedis.del("0003");
+////        jedis.hset("0003", "user99998", "2019/11/11 11:11:11");
+////        System.out.println(jedis.hexists("0005", "counts"));
+//    }
 }
