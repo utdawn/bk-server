@@ -28,18 +28,29 @@ public class ShiroConfig {
         shiroFilterFactoryBean.setUnauthorizedUrl("/notRole");
         Map<String, String> filterChainDefinitionMap = new LinkedHashMap<>();
         // <!-- authc:所有url都必须认证通过才可以访问; anon:所有url都都可以匿名访问-->
+//        filterChainDefinitionMap.put("/**", "anon");
         filterChainDefinitionMap.put("/webjars/**", "anon");
         filterChainDefinitionMap.put("/login", "anon");
         filterChainDefinitionMap.put("/", "anon");
+        filterChainDefinitionMap.put("/goods/**", "anon");
         filterChainDefinitionMap.put("/front/**", "anon");
         filterChainDefinitionMap.put("/api/**", "anon");
         filterChainDefinitionMap.put("/register", "anon");
 
-        filterChainDefinitionMap.put("/admin/**", "authc");
-        filterChainDefinitionMap.put("/user/**", "authc");
-        filterChainDefinitionMap.put("/index/**", "authc");
+//        filterChainDefinitionMap.put("/admin/**", "authc");
+//        filterChainDefinitionMap.put("/goods/getGoodsList", "authc");
+//        filterChainDefinitionMap.put("/index/**", "authc");
+        filterChainDefinitionMap.put("/getOrdersList", "authc");
+        filterChainDefinitionMap.put("/getOrdersById", "authc");
+        filterChainDefinitionMap.put("/getOrdersByUserName", "authc");
+        filterChainDefinitionMap.put("/addSeckill", "authc");
+        filterChainDefinitionMap.put("/beginSecondKill", "authc");
+        filterChainDefinitionMap.put("/doSeckill", "authc");
+        filterChainDefinitionMap.put("/endSecondKill", "authc");
+
         //主要这行代码必须放在所有权限设置的最后，不然会导致所有 url 都被拦截 剩余的都需要认证
-        filterChainDefinitionMap.put("/**", "authc");
+//        filterChainDefinitionMap.put("/**", "authc");
+        filterChainDefinitionMap.put("/**", "anon");
         shiroFilterFactoryBean.setFilterChainDefinitionMap(filterChainDefinitionMap);
         return shiroFilterFactoryBean;
 

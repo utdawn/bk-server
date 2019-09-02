@@ -1,6 +1,6 @@
 package com.gcwl.bkserver.controller;
 
-import com.gcwl.bkserver.service.RedisService;
+import com.gcwl.bkserver.service.JedisCache;
 import com.gcwl.bkserver.util.Result;
 import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,13 +13,14 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class RedisController {
 
     @Autowired
-    private RedisService redisService;
+    private JedisCache jedisCache;
 
     @GetMapping("test")
     @ResponseBody
     public Object test() {
-        redisService.set("object", 111);
-        return redisService.exists("object");
+//        jedisCache.setObject("object", 111);
+//        return jedisCache.getObject("object");
+        return null;
     }
 
     @GetMapping("haha")

@@ -1,8 +1,13 @@
 package com.gcwl.bkserver.entity;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public class Orders {
+public class Orders implements Serializable {
+
+    //定义一个序列号
+    private static final long serialVersionUID = 1L;
+
     private int oid;
     private String userName;
     private String goodsCode;

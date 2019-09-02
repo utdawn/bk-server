@@ -1,9 +1,14 @@
 package com.gcwl.bkserver.entity;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
-public class Goods {
+public class Goods implements Serializable {
+
+    //定义一个序列号
+    private static final long serialVersionUID = 1L;
+
     private int gid;
     private String goodsCode;
     private String goodsName;

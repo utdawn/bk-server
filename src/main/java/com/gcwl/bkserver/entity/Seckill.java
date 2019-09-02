@@ -1,8 +1,13 @@
 package com.gcwl.bkserver.entity;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public class Seckill {
+public class Seckill implements Serializable {
+
+    //定义一个序列号
+    private static final long serialVersionUID = 1L;
+
     private int sid;
     private String goodsCode;
     private double seckillPrice;

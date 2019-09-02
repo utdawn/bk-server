@@ -2,11 +2,16 @@ package com.gcwl.bkserver.entity;
 
 import lombok.Data;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class User {
+public class User implements Serializable {
+
+    //定义一个序列号
+    private static final long serialVersionUID = 1L;
+
     private int uid;
     private String userName;
     private String password;
