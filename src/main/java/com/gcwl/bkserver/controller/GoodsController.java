@@ -1,9 +1,6 @@
 package com.gcwl.bkserver.controller;
 
-import com.gcwl.bkserver.entity.Goods;
-import com.gcwl.bkserver.entity.Orders;
 import com.gcwl.bkserver.entity.Seckill;
-import com.gcwl.bkserver.service.RedisService;
 import com.gcwl.bkserver.service.impl.GoodsServiceImpl;
 import com.gcwl.bkserver.util.Result;
 import io.swagger.annotations.Api;
@@ -15,19 +12,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-
 @Api
 @Controller
 @RequestMapping("/goods")
 public class GoodsController {
     @Autowired
     private GoodsServiceImpl goodsServiceimpl;
-
-    @Autowired
-    private RedisService redisService;
 
     /**
      * 获取所有商品
@@ -59,11 +49,7 @@ public class GoodsController {
     @PostMapping("/getGoodsByGoodsCode")
     @ResponseBody
     public Result getGoodsByGoodsCode(String goodsCode) {
-        Goods goods = goodsServiceimpl.getGoodsByGoodsCode(goodsCode);
-        if(null == goods){
-            return Result.error("暂无该商品");
-        }
-        return Result.build("0000","成功", goods);
+        return goodsServiceimpl.getGoodsByGoodsCode(goodsCode);
     }
 
     /**
@@ -111,19 +97,17 @@ public class GoodsController {
         return goodsServiceimpl.addSeckill(seckill);
     }
 
-    @GetMapping("beginSecondKill")
+    @GetMapping("/beginSecondKill")
     @ResponseBody
-    public Result beginSecondKill() {
-        redisService.set("counts", goodsServiceimpl.getCounts("0003"));
-        return Result.success("haj");
+    public Result beginSecondKill(String goodsCode) {
+        return goodsServiceimpl.beginSecondKill(goodsCode);
     }
 
-    @GetMapping("endSecondKill")
+    @GetMapping("/endSecondKill")
     @ResponseBody
-    public Result endSecondKill() {
-        goodsServiceimpl.endSecondKill("0003", (int)redisService.get("counts"));
-        redisService.remove("counts");
-        return Result.success("haj");
+    public Result endSecondKill(String goodsCode) {
+        goodsServiceimpl.endSecondKill(goodsCode);
+        return Result.success("结束秒杀");
     }
 
 }

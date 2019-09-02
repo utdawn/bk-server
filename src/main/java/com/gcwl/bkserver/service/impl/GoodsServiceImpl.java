@@ -5,23 +5,31 @@ import com.gcwl.bkserver.entity.Orders;
 import com.gcwl.bkserver.entity.Seckill;
 import com.gcwl.bkserver.mapper.GoodsMapper;
 import com.gcwl.bkserver.service.GoodsService;
-import com.gcwl.bkserver.service.RedisService;
+import com.gcwl.bkserver.service.JedisCache;
 import com.gcwl.bkserver.util.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class GoodsServiceImpl implements GoodsService {
+
+    private static final String KEY_GOODS = "goods";
+    private static final String KEY_SECKILL = "seckill";
+    private static final String KEY_ORDERS = "orders";
 
     @Autowired
     private GoodsMapper goodsMapper;
 
     @Autowired
-    private RedisService redisService;
+    private JedisCache jedisCache;
 
     @Override
     public List<Goods> getGoodsList() {
@@ -40,13 +48,24 @@ public class GoodsServiceImpl implements GoodsService {
     }
 
     @Override
-    public Goods getGoodsByGoodsCode(String goodsCode) {
-        Goods goods = goodsMapper.getGoodsByGoodsCode(goodsCode);
-        if(null == goods)
-            return null;
+    public Result getGoodsByGoodsCode(String goodsCode) {
+        Goods goods = null ;
+        if(false == jedisCache.hexists(goodsCode,"counts")){
+            //无缓存，表示不在秒杀状态中，则从数据库中取
+            goods = goodsMapper.getGoodsByGoodsCode(goodsCode);
+            if(null == goods){
+                return Result.error("暂无该商品");
+            }
+        }else{
+            Seckill seckill =  goodsMapper.getSekillByGoodsCode(goodsCode);
+            //从redis中取出当前余量
+            String countsStr = jedisCache.hget(goodsCode, "counts");
+            int counts = Integer.parseInt(countsStr);
+            goods.setCounts(counts);
+        }
         List<String> iconUrlList = goodsMapper.getGoodsIconUrlByGoodsCode(goodsCode);
         goods.setIconUrl(iconUrlList);
-        return goods;
+        return Result.build("9999","成功", goods);
     }
 
     @Override
@@ -77,41 +96,28 @@ public class GoodsServiceImpl implements GoodsService {
      */
     @Override
     public synchronized Result doSeckill(String userName, String goodsCode){
-        //判断库存量
-        Seckill seckill  = goodsMapper.getSekillByGoodsCode(goodsCode);
-        int counts = seckill.getCounts();
-//        int counts = (Integer) redisService.get("counts");
+        if(false == jedisCache.hexists(goodsCode, "counts")){
+            return Result.error("尚未开启抢购");
+        }
+        System.out.println("********* 开始秒杀 ********");
+        //取出该商品库存量
+        String countsStr  = jedisCache.hget(goodsCode, "counts");
+        int counts = Integer.parseInt(countsStr);
         if(counts <= 0){
             return Result.error("手慢了，已被抢购空了!");
         }
-        //取出该用户与该商品的有关订单信息，
-        //包括非抢购时段购买信息和抢购时段购买信息
-        List<Orders> ordersList = goodsMapper.getOrdersByUserNameAndGoodsCode(userName,goodsCode);
-        //获取秒杀商品的抢购时间
-        //用以判断用户是否已经抢购过该商品
-        Date startTime = seckill.getStartTime();
-        Date endTime = seckill.getEndTime();
-        for(Orders orders: ordersList){
-            Date payTime = orders.getPayTime();
-            System.out.println("------抢购时间："+payTime);
-            System.out.println("开始时间："+startTime);
-            System.out.println("结束时间："+endTime);
-            if(payTime.compareTo(startTime) >= 0 && payTime.compareTo(endTime) <= 0){
-                return Result.error("已抢购过该商品！");
-            }
+        //判断该用户是否已抢购过该商品，
+        if(jedisCache.hexists(goodsCode,userName)){
+            return Result.error("已抢购过该商品！");
         }
-        //减库存 下订单
+        //减库存
         counts = counts - 1;
-        seckill.setCounts(counts);
-        goodsMapper.updateSeckillByGoodsCode(seckill);
-//        redisService.set("counts", counts);
-        Orders orders = new Orders();
-        orders.setGoodsCode(goodsCode);
-        orders.setUserName(userName);
-        orders.setCounts(1);
-        orders.setPayTime(new Date());
-        orders.setPay(seckill.getSeckillPrice());
-        goodsMapper.addOrders(orders);
+        jedisCache.hset(goodsCode,"counts", counts+"");
+        //获取当前时间，存订单
+        Date currentTime = new Date();
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+        String dateStr = formatter.format(currentTime);
+        jedisCache.hset(goodsCode,userName,dateStr);
         return Result.success("恭喜你，抢购成功！");
     }
 
@@ -125,16 +131,48 @@ public class GoodsServiceImpl implements GoodsService {
     }
 
     @Override
-    public int getCounts(String goodsCode) {
-        Seckill seckill  = goodsMapper.getSekillByGoodsCode(goodsCode);
+    public Result beginSecondKill(String goodsCode){
+        if(jedisCache.hexists(goodsCode, "counts")){
+            return Result.error("无法重复开启秒杀");
+        }
+        Seckill seckill = goodsMapper.getSekillByGoodsCode(goodsCode);
         int counts = seckill.getCounts();
-        return counts;
+        jedisCache.hset(goodsCode,"counts", counts+"");
+        return Result.success("开启秒杀");
     }
 
     @Override
-    public Result endSecondKill(String goodsCode, int counts) {
+    public Result endSecondKill(String goodsCode) {
+        if(false == jedisCache.hexists(goodsCode, "counts")){
+            return Result.error("无法结束秒杀，请先开启该商品秒杀");
+        }
+        Map<String,String> userNameMap = jedisCache.hgetAll(goodsCode);
+        DateFormat format = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+
+        Seckill seckill =  goodsMapper.getSekillByGoodsCode(goodsCode);
+        double price = seckill.getSeckillPrice();
+        //将所有用户和该商品的抢购订单加入数据库中
+        for (Map.Entry<String, String> entry : userNameMap.entrySet()) {
+            if(entry.getKey().equals("counts"))
+                continue;
+            Orders orders = new Orders();
+            orders.setUserName(entry.getKey());
+            orders.setGoodsCode(goodsCode);
+            orders.setCounts(1);
+            orders.setPay(price);
+            try {
+                orders.setPayTime(format.parse(entry.getValue()));
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            goodsMapper.addOrders(orders);
+        }
+        int counts = Integer.parseInt(jedisCache.hget(goodsCode, "counts"));
+        //更新数据库中该抢购商品的数量
         goodsMapper.reduceSeckillByGoodsCode(goodsCode, counts);
-        return Result.success("");
+        //移除相应的key
+        jedisCache.delKey(goodsCode);
+        return Result.success("结束秒杀");
     }
 
 

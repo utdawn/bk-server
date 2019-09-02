@@ -14,7 +14,7 @@ public interface GoodsService {
 
     public List<Orders> getOrdersList();
 
-    public Goods getGoodsByGoodsCode(String goodsCode);
+    public Result getGoodsByGoodsCode(String goodsCode);
 
     public List<Goods> getGoodsByGoodsName(String goodsName);
 
@@ -28,8 +28,10 @@ public interface GoodsService {
 
     public Result addSeckill(Seckill seckill);
 
-    public int getCounts(String goodsCode);
+//    public int getCounts(String goodsCode);
 
-    public Result endSecondKill(String goodsCode, int counts);
+    public Result beginSecondKill(String goodsCode);
+
+    public Result endSecondKill(String goodsCode);
 
 }

@@ -2,11 +2,16 @@ package com.gcwl.bkserver.entity;
 
 import lombok.Data;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
 @Data
-public class Permission {
+public class Permission implements Serializable {
+
+    //定义一个序列号
+    private static final long serialVersionUID = 1L;
+
     private int pid;
     private String permissionCode;
     private String permissionName;
