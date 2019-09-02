@@ -26,6 +26,8 @@ public interface GoodsService {
 
     public Result doSeckill(String userName, String goodsCode);
 
+    public Result doSeckill2(String userName, String goodsCode);
+
     public Result addSeckill(Seckill seckill);
 
 //    public int getCounts(String goodsCode);
@@ -33,5 +35,7 @@ public interface GoodsService {
     public Result beginSecondKill(String goodsCode);
 
     public Result endSecondKill(String goodsCode);
+
+    public Result endSecondKill2(String goodsCode);
 
 }

@@ -96,7 +96,8 @@ public class RedisUtil2 {
      */
     public static void returnResource(final Jedis jedis) {
         if(jedis != null&& jedisPool !=null) {
-            jedisPool.returnResource(jedis);
+//            jedisPool.returnResource(jedis);
+            jedis.close();
         }
     }
 

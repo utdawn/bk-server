@@ -1,5 +1,6 @@
 package com.gcwl.bkserver;
 
+import com.gcwl.bkserver.config.RMQProducer;
 import com.gcwl.bkserver.service.JedisCache;
 import com.gcwl.bkserver.util.RedisUtil2;
 import org.junit.Test;
@@ -116,14 +117,14 @@ public class BkServerApplicationTests {
 //        System.out.println("over");
 //    }
 
-    @Autowired
-    private JedisCache jedisCache;
+//    @Autowired
+//    private JedisCache jedisCache;
 
 //    @Autowired
 //    private JedisPool jedisPool;
 
 //    @Test
-//    public void test(){
+//    public void test2(){
 ////        Jedis jedis = jedisPool.getResource();
 //        Jedis jedis = RedisUtil2.getJedis();
 ////        if(jedis == null){
@@ -134,4 +135,12 @@ public class BkServerApplicationTests {
 ////        jedis.hset("0003", "user99998", "2019/11/11 11:11:11");
 ////        System.out.println(jedis.hexists("0005", "counts"));
 //    }
+
+    @Autowired
+    private RMQProducer rmqProducer;
+
+    @Test
+    public void test(){
+//        rmqProducer.send();
+    }
 }

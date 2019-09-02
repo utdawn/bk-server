@@ -1,5 +1,7 @@
 package com.gcwl.bkserver.service.impl;
 
+import com.gcwl.bkserver.config.RMQConsumer;
+import com.gcwl.bkserver.config.RMQProducer;
 import com.gcwl.bkserver.entity.Goods;
 import com.gcwl.bkserver.entity.Orders;
 import com.gcwl.bkserver.entity.Seckill;
@@ -25,11 +27,19 @@ public class GoodsServiceImpl implements GoodsService {
     private static final String KEY_SECKILL = "seckill";
     private static final String KEY_ORDERS = "orders";
 
+    
+
     @Autowired
     private GoodsMapper goodsMapper;
 
     @Autowired
     private JedisCache jedisCache;
+
+    @Autowired
+    private RMQProducer rmqProducer;
+
+    @Autowired
+    private RMQConsumer rmqConsumer;
 
     @Override
     public List<Goods> getGoodsList() {
@@ -122,6 +132,40 @@ public class GoodsServiceImpl implements GoodsService {
     }
 
     @Override
+    public synchronized Result doSeckill2(String userName, String goodsCode) {
+        if(false == jedisCache.hexists(goodsCode, "counts")){
+            return Result.error("尚未开启抢购");
+        }
+        System.out.println("********* 开始秒杀 ********");
+        //取出该商品库存量
+        String countsStr  = jedisCache.hget(goodsCode, "counts");
+        int counts = Integer.parseInt(countsStr);
+        if(counts <= 0){
+            return Result.error("手慢了，已被抢购空了!");
+        }
+        //判断该用户是否已抢购过该商品，
+        if(jedisCache.hexists(goodsCode,userName)){
+            return Result.error("已抢购过该商品！");
+        }
+        //减库存
+        counts = counts - 1;
+        jedisCache.hset(goodsCode,"counts", counts+"");
+        //获取当前时间，存订单
+        Date currentTime = new Date();
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+        String dateStr = formatter.format(currentTime);
+
+        Orders orders = new Orders();
+        orders.setUserName(userName);
+        orders.setGoodsCode(goodsCode);
+        orders.setCounts(1);
+        orders.setPayTime(new Date());
+//        jedisCache.hset(goodsCode,userName,dateStr);
+        rmqProducer.send(orders);
+        return Result.success("恭喜你，抢购成功！");
+    }
+
+    @Override
     public Result addSeckill(Seckill seckill) {
         Seckill sec = goodsMapper.getSekillByGoodsCode(seckill.getGoodsCode());
         if(null != sec)
@@ -175,5 +219,17 @@ public class GoodsServiceImpl implements GoodsService {
         return Result.success("结束秒杀");
     }
 
+    @Override
+    public Result endSecondKill2(String goodsCode) {
+        if(false == jedisCache.hexists(goodsCode, "counts")){
+            return Result.error("无法结束秒杀，请先开启该商品秒杀");
+        }
+        int counts = Integer.parseInt(jedisCache.hget(goodsCode, "counts"));
+        //更新数据库中该抢购商品的数量
+        goodsMapper.reduceSeckillByGoodsCode(goodsCode, counts);
+        //移除相应的key
+        jedisCache.delKey(goodsCode);
+        return Result.success("结束秒杀");
+    }
 
 }

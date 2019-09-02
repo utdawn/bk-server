@@ -86,6 +86,12 @@ public class GoodsController {
         return goodsServiceimpl.doSeckill(userName,goodsCode);
     }
 
+    @PostMapping("/doSeckill2")
+    @ResponseBody
+    public Result doSeckill2(String userName, String goodsCode) {
+        return goodsServiceimpl.doSeckill2(userName,goodsCode);
+    }
+
     /**
      * 添加抢购商品名单
      * @param seckill
@@ -107,6 +113,13 @@ public class GoodsController {
     @ResponseBody
     public Result endSecondKill(String goodsCode) {
         goodsServiceimpl.endSecondKill(goodsCode);
+        return Result.success("结束秒杀");
+    }
+
+    @GetMapping("/endSecondKill2")
+    @ResponseBody
+    public Result endSecondKill2(String goodsCode){
+        goodsServiceimpl.endSecondKill2(goodsCode);
         return Result.success("结束秒杀");
     }
 
